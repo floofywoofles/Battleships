@@ -6,3 +6,5 @@ class Submarine extends Ship {
         super(width, type);
     }
 }
+
+export {Submarine}

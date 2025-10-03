@@ -171,6 +171,16 @@ class Board {
 
         return out;
     }
+
+    hasShipAtPlacingPosition(point: Point): boolean {
+        const hasShip: boolean = this.placingPosition.some((value: Point)=>{
+            value.y === point.y && value.x === point.x;
+        });
+
+
+        return hasShip;
+    }
+    
 }
 
 export {Board}

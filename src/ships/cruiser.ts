@@ -6,3 +6,5 @@ class Cruiser extends Ship {
         super(width, type);
     }
 }
+
+export {Cruiser}

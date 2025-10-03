@@ -6,3 +6,5 @@ class Destroyer extends Ship {
         super(width, type);
     }
 }
+
+export {Destroyer};

@@ -6,3 +6,5 @@ class Carrier extends Ship {
         super(width, type);
     }
 }
+
+export {Carrier}

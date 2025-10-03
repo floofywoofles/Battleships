@@ -6,3 +6,5 @@ class Battleship extends Ship {
         super(width, type);
     }
 }
+
+export {Battleship}
