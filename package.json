@@ -1,0 +1,16 @@
+{
+  "name": "battleships",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/readline-sync": "^1.4.8"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "readline-sync": "^1.4.10"
+  }
+}

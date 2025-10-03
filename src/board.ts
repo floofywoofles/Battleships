@@ -1,0 +1,176 @@
+import { Ship } from "./ships/ship";
+import type { Point } from "./types/point";
+
+class Board {
+    ships: Ship[]
+    turns: number;
+    shots: number;
+    shotPositions: Point[];
+    width: number;
+    height: number;
+    placingPosition: Point[];
+
+    constructor(){
+        this.ships = [];
+        this.shotPositions = [];
+        this.placingPosition = [];
+        this.turns = 0;
+        this.shots = 0;
+        this.width = 10;
+        this.height = 10;
+    }
+
+    getShips(): Ship[] {
+        return this.ships;
+    }
+
+    getTurns(): number {
+        return this.turns;
+    }
+
+    getShots(): number {
+        return this.shots;
+    }
+
+    addShip(sh: Ship): boolean {
+        // Ugly code
+        // Checks if a ship already has this position
+        const hasShip: boolean = this.ships.some((ship: Ship)=>{
+            const positions: Point[] = ship.getPositions();
+
+            // Checks if any of the ships have a conflicting position which will return true if every value is true, meaning the full position is empty for a ship to be placed
+           const posCheck: boolean[] = positions.map((p: Point) => {
+                // Checks if any of the position value are conflicting
+                const hasConflictingPoint: boolean = sh.getPositions().some((p2: Point) => {
+                    p2.x === p.x && p2.y === p.y
+                });
+
+                return hasConflictingPoint;
+            })
+
+            // If every value is true, that means a ship is already there
+            // if(posCheck.every((value: boolean) => value === true)){
+            //     return false;
+            // } else if(posCheck.some((value: boolean) => value === true)){
+            //     // Doing this because not all tiles might be true
+            //     return false;
+            // }
+            // We only really need to know if one tile is true
+            if(posCheck.some((value: boolean) => value === true)){
+                // Doing this because not all tiles might be true
+                return true;
+            }
+
+
+            return false;
+        })
+
+        if(hasShip) {
+            return false;
+        }
+
+        this.ships.push(sh);
+
+        return true;
+    }
+
+    hitPosition(point: Point): boolean {
+        const ships: Ship[] = this.getShips();
+
+        const alreadyHasHitPosition: boolean = ships.some((value: Ship) => {
+            const points: Point[] = value.getPositions();
+
+            const hasPoint: boolean = points.some((p: Point) => {
+                p.y === point.y && p.x === point.x
+            })
+
+            return hasPoint;
+        })
+
+        if(!alreadyHasHitPosition){
+            const ship: Ship | undefined = ships.map((value: Ship) => {
+                const hasSamePoint = value.getPositions().some((p: Point)=>{
+                    p.y === point.y && p.x === point.x;
+                });
+
+                if(hasSamePoint){
+                    return value;
+                }
+                
+            })[0];
+
+            if(!ship){
+                this.shotPositions.push(point);
+                console.info("Added point to empty spot")
+                return true;
+            } else if(ship || ship === undefined){
+                ship.addHitPosition(point);
+                return true;
+            }
+            
+        }
+        return false;
+    }
+
+    draw(): string {
+        let out: string = "";
+
+        for(let y = 0; y < this.height; ++y){
+            for(let x = 0; x < this.width; ++x){
+                let added: boolean = false;
+                // TODOSimplify this
+                this.ships.map((ship: Ship)=>{
+                    const hasPoint: boolean = ship.getPositions().some((point: Point) => point.y === y && point.x === x)
+                    if(hasPoint){
+                        out += " # "
+                        added = true;
+                        return;
+                    }
+                })
+
+                this.shotPositions.map((value: Point)=>{
+                    if(value.x === x && value.y === y){
+                        out += " * ";
+                        added = true;
+                        return;
+                    }
+                })
+
+                if(added === false){
+                    out += " - ";
+                }
+            }
+
+            out += "\n";
+        }
+
+        return out;
+    }
+    
+    drawPlacingPosition(): string {
+        let out: string = "";
+
+        for(let y = 0; y < this.height; ++y){
+            for(let x = 0; x < this.width; ++x){
+                let added: boolean = false;
+
+                this.placingPosition.map((value: Point)=> {
+                    if(value.y === y && value.x === x){
+                        out += " # ";
+                        added = true;
+                    }
+                })
+
+                if(added === false){
+                    out += " - ";
+                }
+            }
+
+            out += "\n"
+        }
+
+        return out;
+    }
+}
+
+export {Board}
