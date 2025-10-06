@@ -119,14 +119,14 @@ class Board {
             for(let x = 0; x < this.width; ++x){
                 let added: boolean = false;
                 // TODOSimplify this
-                this.ships.map((ship: Ship)=>{
-                    const hasPoint: boolean = ship.getPositions().some((point: Point) => point.y === y && point.x === x)
-                    if(hasPoint){
-                        out += " # "
-                        added = true;
-                        return;
-                    }
-                })
+                // this.ships.map((ship: Ship)=>{
+                //     const hasPoint: boolean = ship.getPositions().some((point: Point) => point.y === y && point.x === x)
+                //     if(hasPoint){
+                //         out += " # "
+                //         added = true;
+                //         return;
+                //     }
+                // })
 
                 this.shotPositions.map((value: Point)=>{
                     if(value.x === x && value.y === y){
@@ -161,6 +161,13 @@ class Board {
                     }
                 })
 
+                this.ships.map((ship: Ship)=>{
+                    if(ship.getPositions().some((point: Point)=> point.y === y && point.x === x)){
+                        out += " # ";
+                        added = true;
+                    }
+                })
+
                 if(added === false){
                     out += " - ";
                 }
@@ -174,11 +181,48 @@ class Board {
 
     hasShipAtPlacingPosition(point: Point): boolean {
         const hasShip: boolean = this.placingPosition.some((value: Point)=>{
-            value.y === point.y && value.x === point.x;
+            return value.y === point.y && value.x === point.x;
         });
 
 
         return hasShip;
+    }
+
+    calculateShipPositions(startPoint: Point, width: number, isHorizontal: boolean): Point[] {
+        const positions: Point[] = [];
+        for(let i = 0; i < width; i++){
+            if(isHorizontal){
+                positions.push({x: startPoint.x + i, y: startPoint.y});
+            } else {
+                positions.push({x: startPoint.x, y: startPoint.y + i});
+            }
+        }
+        return positions;
+    }
+
+    wouldCollideWithPlacedShips(positions: Point[]): boolean {
+        return positions.some((pos: Point) => 
+            this.ships.some((ship: Ship) => 
+                ship.getPositions().some((shipPos: Point) => 
+                    shipPos.x === pos.x && shipPos.y === pos.y
+                )
+            )
+        );
+    }
+
+    findEmptyPosition(width: number, isHorizontal: boolean): Point {
+        for(let y = 0; y < this.height; y++){
+            for(let x = 0; x < this.width; x++){
+                const testPositions: Point[] = this.calculateShipPositions({x, y}, width, isHorizontal);
+                const outOfBounds: boolean = testPositions.some((pos: Point) => 
+                    pos.x >= this.width || pos.y >= this.height || pos.x < 0 || pos.y < 0
+                );
+                if(!outOfBounds && !this.wouldCollideWithPlacedShips(testPositions)){
+                    return {x, y};
+                }
+            }
+        }
+        return {x: 0, y: 0};
     }
     
 }
