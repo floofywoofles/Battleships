@@ -39,6 +39,18 @@ class Ship {
     getPositions(): Point[] {
         return this.positions;
     }
+
+    getHitPositions(): Point[] {
+        return this.hitPositions;
+    }
+
+    isSunk(): boolean {
+        return this.hitPositions.length === this.positions.length && this.positions.length > 0;
+    }
+
+    hasPosition(point: Point): boolean {
+        return this.positions.some((p: Point) => p.x === point.x && p.y === point.y);
+    }
 }
 
 export {Ship}
