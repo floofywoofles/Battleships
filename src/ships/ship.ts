@@ -24,7 +24,7 @@ class Ship {
 
     addHitPosition(point: Point): boolean {
         const firstInst: boolean = this.hitPositions.some((p: Point)=>{
-            p.x === point.x && p.y === point.y
+            return p.x === point.x && p.y === point.y;
         });
 
         if(firstInst){

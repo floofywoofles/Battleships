@@ -130,27 +130,21 @@ function initializePlaying(): void {
 function handlePlayingKey(key: string): void {
     const opponentBoard: Board = game.getOpponentBoard();
     
-    switch(key){
-        case "w":
-            game.targetPosition.y = Math.max(0, game.targetPosition.y - 1);
-            break;
-        case "s":
-            game.targetPosition.y = Math.min(opponentBoard.height - 1, game.targetPosition.y + 1);
-            break;
-        case "a":
-            game.targetPosition.x = Math.max(0, game.targetPosition.x - 1);
-            break;
-        case "d":
-            game.targetPosition.x = Math.min(opponentBoard.width - 1, game.targetPosition.x + 1);
-            break;
-        case " ":
-            if(!opponentBoard.hasShotAt(game.targetPosition)){
-                game.fireShot();
-                if(game.isFinished()){
-                    return;
-                }
+    if(key === "w" || key === "\u001b[A"){
+        game.targetPosition.y = Math.max(0, game.targetPosition.y - 1);
+    } else if(key === "s" || key === "\u001b[B"){
+        game.targetPosition.y = Math.min(opponentBoard.height - 1, game.targetPosition.y + 1);
+    } else if(key === "a" || key === "\u001b[D"){
+        game.targetPosition.x = Math.max(0, game.targetPosition.x - 1);
+    } else if(key === "d" || key === "\u001b[C"){
+        game.targetPosition.x = Math.min(opponentBoard.width - 1, game.targetPosition.x + 1);
+    } else if(key === " " || key === "\x20" || key.charCodeAt(0) === 32){
+        if(!opponentBoard.hasShotAt(game.targetPosition)){
+            game.fireShot();
+            if(game.isFinished()){
+                return;
             }
-            break;
+        }
     }
 }
 

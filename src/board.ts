@@ -42,7 +42,7 @@ class Board {
            const posCheck: boolean[] = positions.map((p: Point) => {
                 // Checks if any of the position value are conflicting
                 const hasConflictingPoint: boolean = sh.getPositions().some((p2: Point) => {
-                    p2.x === p.x && p2.y === p.y
+                    return p2.x === p.x && p2.y === p.y;
                 });
 
                 return hasConflictingPoint;
