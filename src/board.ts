@@ -42,7 +42,7 @@ class Board {
            const posCheck: boolean[] = positions.map((p: Point) => {
                 // Checks if any of the position value are conflicting
                 const hasConflictingPoint: boolean = sh.getPositions().some((p2: Point) => {
-                    p2.x === p.x && p2.y === p.y
+                    return p2.x === p.x && p2.y === p.y;
                 });
 
                 return hasConflictingPoint;
@@ -75,41 +75,45 @@ class Board {
     }
 
     hitPosition(point: Point): boolean {
-        const ships: Ship[] = this.getShips();
-
-        const alreadyHasHitPosition: boolean = ships.some((value: Ship) => {
-            const points: Point[] = value.getPositions();
-
-            const hasPoint: boolean = points.some((p: Point) => {
-                p.y === point.y && p.x === point.x
-            })
-
-            return hasPoint;
-        })
-
-        if(!alreadyHasHitPosition){
-            const ship: Ship | undefined = ships.map((value: Ship) => {
-                const hasSamePoint = value.getPositions().some((p: Point)=>{
-                    p.y === point.y && p.x === point.x;
-                });
-
-                if(hasSamePoint){
-                    return value;
-                }
-                
-            })[0];
-
-            if(!ship){
-                this.shotPositions.push(point);
-                console.info("Added point to empty spot")
-                return true;
-            } else if(ship || ship === undefined){
-                ship.addHitPosition(point);
-                return true;
-            }
-            
+        if(this.hasShotAt(point)){
+            return false;
         }
-        return false;
+
+        const ship: Ship | undefined = this.ships.find((s: Ship) => s.hasPosition(point));
+
+        if(ship){
+            ship.addHitPosition(point);
+            return true;
+        } else {
+            this.shotPositions.push(point);
+            return false;
+        }
+    }
+
+    hasShotAt(point: Point): boolean {
+        if(this.shotPositions.some((p: Point) => p.x === point.x && p.y === point.y)){
+            return true;
+        }
+        return this.ships.some((ship: Ship) => 
+            ship.getHitPositions().some((p: Point) => p.x === point.x && p.y === point.y)
+        );
+    }
+
+    isHit(point: Point): boolean {
+        return this.ships.some((ship: Ship) => ship.hasPosition(point) && 
+            ship.getHitPositions().some((p: Point) => p.x === point.x && p.y === point.y));
+    }
+
+    isMiss(point: Point): boolean {
+        return this.shotPositions.some((p: Point) => p.x === point.x && p.y === point.y);
+    }
+
+    allShipsSunk(): boolean {
+        return this.ships.length > 0 && this.ships.every((ship: Ship) => ship.isSunk());
+    }
+
+    hasShipAt(point: Point): boolean {
+        return this.ships.some((ship: Ship) => ship.hasPosition(point));
     }
 
     draw(): string {
@@ -117,24 +121,16 @@ class Board {
 
         for(let y = 0; y < this.height; ++y){
             for(let x = 0; x < this.width; ++x){
+                const point: Point = {x, y};
                 let added: boolean = false;
-                // TODOSimplify this
-                // this.ships.map((ship: Ship)=>{
-                //     const hasPoint: boolean = ship.getPositions().some((point: Point) => point.y === y && point.x === x)
-                //     if(hasPoint){
-                //         out += " # "
-                //         added = true;
-                //         return;
-                //     }
-                // })
 
-                this.shotPositions.map((value: Point)=>{
-                    if(value.x === x && value.y === y){
-                        out += " * ";
-                        added = true;
-                        return;
-                    }
-                })
+                if(this.isHit(point)){
+                    out += " X ";
+                    added = true;
+                } else if(this.isMiss(point)){
+                    out += " O ";
+                    added = true;
+                }
 
                 if(added === false){
                     out += " - ";
@@ -145,6 +141,40 @@ class Board {
         }
 
         return out;
+    }
+
+    drawOwnBoard(): string {
+        let out: string = "";
+
+        for(let y = 0; y < this.height; ++y){
+            for(let x = 0; x < this.width; ++x){
+                const point: Point = {x, y};
+                let added: boolean = false;
+
+                if(this.isHit(point)){
+                    out += " X ";
+                    added = true;
+                } else if(this.isMiss(point)){
+                    out += " O ";
+                    added = true;
+                } else if(this.hasShipAt(point)){
+                    out += " # ";
+                    added = true;
+                }
+
+                if(added === false){
+                    out += " - ";
+                }
+            }
+
+            out += "\n";
+        }
+
+        return out;
+    }
+
+    drawOpponentBoard(): string {
+        return this.draw();
     }
     
     drawPlacingPosition(): string {
